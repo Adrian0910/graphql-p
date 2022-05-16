@@ -1,27 +1,29 @@
-'use strict';
+'use strict'
 
-const { graphql, buildSchema } = require('graphql');
+const { makeExecutableSchema } = require('graphql-tools')
+const express = require('express')
+const { graphqlHTTP } = require('express-graphql')
+const { readFileSync } = require('fs');
+const { join } = require('path');
+const resolvers =  require('./lib/resolvers')
 
-//Definir  el schema inicial
-const schema  = buildSchema(`
-    type Query {
-        hello: String
-        saludo: String
-    }
-`);
-//Definir los resolvers
-const resolvers = {
-    hello: () => {
-        return 'Hola mundo'
-    },
-    saludo: ()  => {
-        return 'hola a todos'
-    }
-}
+const app = express()
+const port = process.env.port || 4000
 
-//Ejecutar el query hello
-graphql(schema, '{ hello, saludo }', resolvers).then((data) => {
-    console.log(data)
-});
+// Definir  el schema inicial
+const typeDefs =  readFileSync
+(join(__dirname, 'lib', 'schema.graphql'),
+'utf-8'
+)
+const schema = makeExecutableSchema({ typeDefs, resolvers})
 
+// Definir el middleware
+app.use('/api', graphqlHTTP({ //  '/api' Define  la  ruta
+  schema,
+  rootValue: resolvers,
+  graphiql: true // entorno de desarrollo  graphql
+}))
 
+app.listen(port, () => {
+  console.log(`Server  is listening at http://localhost:${port}/api`)
+})

@@ -1,0 +1,19 @@
+""" 
+    La idea es que nuestras API 
+    tenga un catálogo  de cursos que pueda consultar 
+"""
+
+type Course {
+    _id:  ID!
+    title: String!
+    teacher:  String
+    description: String!
+    topic: String
+}
+
+type Query {
+    "Devuelve todos los cursos"
+    getCourses:  [Course]
+    "Devuelve un  curso"
+    getCourse(id: ID!): Course
+    }
